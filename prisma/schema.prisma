@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  PELANGGAN
+}
+
+enum KategoriProduk {
+  JORAN
+  REEL
+  SENAR
+  KAIL
+  UMPAN
+  AKSESORIS
+}
+
+
+
+model User {
+  id        Int        @id @default(autoincrement())
+  username  String     @unique
+  password  String
+  role      Role       @default(PELANGGAN)
+  noTelp    String     @map("no_telp")
+
+  pesanan   Pesanan[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Produk {
+  id          Int            @id @default(autoincrement())
+  nama        String
+  kategori    KategoriProduk
+  harga       Float
+  stok        Int            @default(0)
+  image       String?
+  deskripsi   String?        @db.Text
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@map("produk")
+}
+
+model Pesanan {
+  id           Int            @id @default(autoincrement())
+  userId       Int            @map("user_id")
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  namaProduk   String         @map("nama_produk")
+  kategori     KategoriProduk
+
+  hargaSatuan  Float          @map("harga_satuan")
+  jumlah       Int
+  totalHarga   Float?         @map("total_harga")
+  catatan      String?        @db.Text
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  @@map("pesanan")
+}
